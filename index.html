@@ -1,0 +1,1458 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formatador ABNT</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .input-field {
+            @apply w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-400 focus:border-transparent transition duration-200 ease-in-out;
+        }
+        .label {
+            @apply block text-sm font-medium text-gray-700 mb-1;
+        }
+        .btn {
+            @apply px-6 py-3 rounded-lg font-semibold shadow-md transition duration-300 ease-in-out transform hover:scale-105;
+        }
+        .btn-primary {
+            @apply bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2;
+        }
+        .btn-secondary {
+            @apply bg-gray-200 text-gray-800 hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2;
+        }
+        .btn-danger {
+            @apply bg-red-500 text-white hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2;
+        }
+        /* Custom Modal Styling */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.75);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+        .modal-content {
+            background-color: white;
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+            max-width: 24rem; /* sm:max-w-sm */
+            width: 100%;
+            margin: 1rem;
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4 text-gray-800">
+
+    <header class="text-center mb-8">
+        <h1 class="text-4xl font-extrabold text-blue-800 mb-2">Formatador ABNT e Visualizador de PDF</h1>
+        <p class="text-lg text-gray-600">Formate suas referências bibliográficas e visualize PDFs com facilidade.</p>
+    </header>
+
+    <nav class="flex justify-center space-x-4 mb-8">
+        <button id="formatter-tab" class="btn btn-primary">
+            Formatador de Referências
+        </button>
+        <button id="pdf-viewer-tab" class="btn btn-secondary">
+            Visualizador de PDF
+        </button>
+    </nav>
+
+    <!-- Reference Form Section -->
+    <div id="formatter-section" class="bg-white p-8 rounded-xl shadow-lg max-w-4xl mx-auto mb-8">
+        <h2 class="text-2xl font-bold text-gray-800 mb-6">Dados da Referência</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div>
+                <label for="type" class="label">Tipo de Referência:</label>
+                <select id="type" name="type" class="input-field">
+                    <option value="book">Livro</option>
+                    <option value="article">Artigo de Periódico</option>
+                    <option value="website">Site / Documento Online</option>
+                    <option value="tcc">TCC (Trabalho de Conclusão de Curso)</option>
+                    <option value="dissertation">Dissertação</option>
+                    <option value="thesis">Tese</option>
+                    <option value="youtube">Vídeo do YouTube</option>
+                    <option value="legislation">Legislação</option>
+                    <option value="chapter">Capítulo de Livro</option>
+                    <option value="image">Imagem / Foto</option>
+                    <option value="map_printed">Mapa / Doc. Cartográfico (Impresso)</option>
+                    <option value="map_electronic">Mapa / Doc. Cartográfico (Eletrônico)</option>
+                    <option value="event_monograph">Evento (Anais/Proceedings - Monografia)</option>
+                    <option value="event_electronic">Evento (Anais/Proceedings - Eletrônico)</option>
+                    <option value="event_part_monograph">Parte de Evento (Trabalho em Anais)</option>
+                </select>
+            </div>
+            <div id="author-field-container">
+                <label for="author" class="label">Autor(es) (Sobrenome, Nome; separe por ponto e vírgula para múltiplos. Para entidades/canais, use o nome completo):</label>
+                <input type="text" id="author" name="author" class="input-field" placeholder="Ex: Silva, João; Santos, Maria ou Organização Mundial da Saúde">
+            </div>
+            <div id="title-field-container">
+                <label for="title" class="label">Título:</label>
+                <input type="text" id="title" name="title" class="input-field" placeholder="Título principal da obra">
+            </div>
+
+            <div id="subtitle-field-container" class="hidden">
+                <label for="subtitle" class="label">Subtítulo (da Obra/Capítulo):</label>
+                <input type="text" id="subtitle" name="subtitle" class="input-field" placeholder="Subtítulo (se houver)">
+            </div>
+            <div id="edition-field-container" class="hidden">
+                <label for="edition" class="label">Edição:</label>
+                <input type="text" id="edition" name="edition" class="input-field" placeholder="Ex: 2. ed.">
+            </div>
+            <div id="place-field-container" class="hidden">
+                <label for="place" class="label">Local de Publicação/Apresentação:</label>
+                <input type="text" id="place" name="place" class="input-field" placeholder="Ex: São Paulo">
+            </div>
+            <div id="publisher-field-container" class="hidden">
+                <label for="publisher" class="label">Editora:</label>
+                <input type="text" id="publisher" name="publisher" class="input-field" placeholder="Ex: Editora XYZ">
+            </div>
+            <div id="periodicalTitle-field-container" class="hidden">
+                <label for="periodicalTitle" class="label">Título do Periódico:</label>
+                <input type="text" id="periodicalTitle" name="periodicalTitle" class="input-field" placeholder="Nome da revista ou periódico">
+            </div>
+            <div id="volume-field-container" class="hidden">
+                <label for="volume" class="label">Volume:</label>
+                <input type="text" id="volume" name="volume" class="input-field" placeholder="Ex: 10">
+            </div>
+            <div id="number-field-container" class="hidden">
+                <label for="number" class="label">Número:</label>
+                <input type="text" id="number" name="number" class="input-field" placeholder="Ex: 2">
+            </div>
+            <div id="pages-field-container" class="hidden">
+                <label for="pages" class="label">Páginas (Inicial-Final):</label>
+                <input type="text" id="pages" name="pages" class="input-field" placeholder="Ex: 25-40">
+            </div>
+            <div id="institution-field-container" class="hidden">
+                <label for="institution" class="label">Instituição:</label>
+                <input type="text" id="institution" name="institution" class="input-field" placeholder="Ex: Universidade Federal de Minas Gerais">
+            </div>
+            <div id="courseProgram-field-container" class="hidden">
+                <label for="courseProgram" class="label">Curso/Programa (Grau e Área de Concentração):</label>
+                <input type="text" id="courseProgram" name="courseProgram" class="input-field" placeholder="Ex: Graduação em Marketing">
+            </div>
+            <div id="documentType-field-container" class="hidden">
+                <label for="documentType" class="label">Tipo do Trabalho:</label>
+                <select id="documentType" name="documentType" class="input-field">
+                    <option value="">Selecione...</option>
+                    <option value="Trabalho de Conclusão de Curso">Trabalho de Conclusão de Curso</option>
+                    <option value="Dissertação">Dissertação</option>
+                    <option value="Tese">Tese</option>
+                </select>
+            </div>
+            <div id="pagesOrVolumes-field-container" class="hidden">
+                <label for="pagesOrVolumes" class="label">Número de Folhas ou Volumes:</label>
+                <input type="text" id="pagesOrVolumes" name="pagesOrVolumes" class="input-field" placeholder="Ex: 120 f. ou 2 v.">
+            </div>
+            <div id="videoDuration-field-container" class="hidden">
+                <label for="videoDuration" class="label">Duração do Vídeo:</label>
+                <input type="text" id="videoDuration" name="videoDuration" class="input-field" placeholder="Ex: 15 min. ou 01:20:00">
+            </div>
+            <div id="platformProducer-field-container" class="hidden">
+                <label for="platformProducer" class="label">Plataforma/Produtora (Nome do Canal):</label>
+                <input type="text" id="platformProducer" name="platformProducer" class="input-field" placeholder="Ex: Descomplica">
+            </div>
+            <div id="jurisdiction-field-container" class="hidden">
+                <label for="jurisdiction" class="label">Jurisdição (Ex: BRASIL, SÃO PAULO (Estado)):</label>
+                <input type="text" id="jurisdiction" name="jurisdiction" class="input-field" placeholder="Ex: BRASIL ou SÃO PAULO (Estado)">
+            </div>
+            <div id="legislationType-field-container" class="hidden">
+                <label for="legislationType" class="label">Tipo de Ato (Ex: Lei, Decreto, Emenda Constitucional):</label>
+                <input type="text" id="legislationType" name="legislationType" class="input-field" placeholder="Ex: Lei">
+            </div>
+            <div id="legislationNumber-field-container" class="hidden">
+                <label for="legislationNumber" class="label">Número do Ato (Ex: nº 10.406):</label>
+                <input type="text" id="legislationNumber" name="legislationNumber" class="input-field" placeholder="Ex: nº 10.406">
+            </div>
+            <div id="legislationDate-field-container" class="hidden">
+                <label for="legislationDate" class="label">Data do Ato (Ex: 10 de janeiro de 2002):</label>
+                <input type="text" id="legislationDate" name="legislationDate" class="input-field" placeholder="Ex: 10 de janeiro de 2002">
+            </div>
+            <div id="ementa-field-container" class="hidden md:col-span-2">
+                <label for="ementa" class="label">Ementa (Resumo do Ato):</label>
+                <textarea id="ementa" name="ementa" class="input-field h-24 resize-y" placeholder="Ex: Institui o Código Civil."></textarea>
+            </div>
+            <div id="publicationVehicle-field-container" class="hidden">
+                <label for="publicationVehicle" class="label">Veículo de Publicação (Ex: Diário Oficial da União):</label>
+                <input type="text" id="publicationVehicle" name="publicationVehicle" class="input-field" placeholder="Ex: Diário Oficial da União">
+            </div>
+            <div id="publicationLocation-field-container" class="hidden">
+                <label for="publicationLocation" class="label">Local de Publicação (Ex: Brasília, DF):</label>
+                <input type="text" id="publicationLocation" name="publicationLocation" class="input-field" placeholder="Ex: Brasília, DF">
+            </div>
+            <div id="publicationVolumeNumber-field-container" class="hidden">
+                <label for="publicationVolumeNumber" class="label">Volume/Número da Publicação (Ex: ano 139, n. 8):</label>
+                <input type="text" id="publicationVolumeNumber" name="publicationVolumeNumber" class="input-field" placeholder="Ex: ano 139, n. 8">
+            </div>
+            <div id="publicationPages-field-container" class="hidden">
+                <label for="publicationPages" class="label">Páginas na Publicação (Ex: 1-74):</label>
+                <input type="text" id="publicationPages" name="publicationPages" class="input-field" placeholder="Ex: 1-74">
+            </div>
+            <div id="publicationDate-field-container" class="hidden">
+                <label for="publicationDate" class="label">Data da Publicação (Ex: 11 jan. 2002):</label>
+                <input type="text" id="publicationDate" name="publicationDate" class="input-field" placeholder="Ex: 11 jan. 2002">
+            </div>
+            <div id="bookAuthor-field-container" class="hidden">
+                <label for="bookAuthor" class="label">Autor(es) do Livro Principal (Sobrenome, Nome; separe por ponto e vírgula):</label>
+                <input type="text" id="bookAuthor" name="bookAuthor" class="input-field" placeholder="Ex: Livro: Silva, Pedro; Santos, Ana">
+            </div>
+            <div id="bookOrganizer-field-container" class="hidden">
+                <label for="bookOrganizer" class="label">Organizador do Livro Principal (se houver):</label>
+                <input type="text" id="bookOrganizer" name="bookOrganizer" class="input-field" placeholder="Ex: Organizador: Oliveira, Carlos">
+            </div>
+            <div id="bookTitle-field-container" class="hidden">
+                <label for="bookTitle" class="label">Título do Livro Principal:</label>
+                <input type="text" id="bookTitle" name="bookTitle" class="input-field" placeholder="Ex: Título do Livro">
+            </div>
+            <div id="bookSubtitle-field-container" class="hidden">
+                <label for="bookSubtitle" class="label">Subtítulo do Livro Principal:</label>
+                <input type="text" id="bookSubtitle" name="bookSubtitle" class="input-field" placeholder="Ex: Subtítulo do Livro">
+            </div>
+            <div id="bookEdition-field-container" class="hidden">
+                <label for="bookEdition" class="label">Edição do Livro Principal:</label>
+                <input type="text" id="bookEdition" name="bookEdition" class="input-field" placeholder="Ex: 3. ed.">
+            </div>
+            <div id="bookPlace-field-container" class="hidden">
+                <label for="bookPlace" class="label">Local de Publicação do Livro Principal:</label>
+                <input type="text" id="bookPlace" name="bookPlace" class="input-field" placeholder="Ex: Rio de Janeiro">
+            </div>
+            <div id="bookPublisher-field-container" class="hidden">
+                <label for="bookPublisher" class="label">Editora do Livro Principal:</label>
+                <input type="text" id="bookPublisher" name="bookPublisher" class="input-field" placeholder="Ex: Editora ABC">
+            </div>
+            <div id="bookYear-field-container" class="hidden">
+                <label for="bookYear" class="label">Ano de Publicação do Livro Principal:</label>
+                <input type="text" id="bookYear" name="bookYear" class="input-field" placeholder="Ex: 2020">
+            </div>
+            <div id="chapterPages-field-container" class="hidden">
+                <label for="chapterPages" class="label">Páginas do Capítulo (Ex: 15-24):</label>
+                <input type="text" id="chapterPages" name="chapterPages" class="input-field" placeholder="Ex: p. 15-24">
+            </div>
+            <div id="imageType-field-container" class="hidden">
+                <label for="imageType" class="label">Tipo de Imagem (Ex: fotografia, gravura, pintura):</label>
+                <input type="text" id="imageType" name="imageType" class="input-field" placeholder="Ex: fotografia">
+            </div>
+            <div id="imageDimensions-field-container" class="hidden">
+                <label for="imageDimensions" class="label">Dimensões (Ex: 46x63 cm):</label>
+                <input type="text" id="imageDimensions" name="imageDimensions" class="input-field" placeholder="Ex: 46x63 cm">
+            </div>
+            <div id="imageLocation-field-container" class="hidden">
+                <label for="imageLocation" class="label">Localização (Ex: Coleção particular, Museu Nacional):</label>
+                <input type="text" id="imageLocation" name="imageLocation" class="input-field" placeholder="Ex: Coleção particular">
+            </div>
+            <!-- New fields for Cartographic Documents -->
+            <div id="cartographicType-field-container" class="hidden">
+                <label for="cartographicType" class="label">Tipo Cartográfico (Ex: mapa, atlas, imagem de satélite):</label>
+                <input type="text" id="cartographicType" name="cartographicType" class="input-field" placeholder="Ex: mapa ou atlas">
+            </div>
+            <div id="scale-field-container" class="hidden">
+                <label for="scale" class="label">Escala (Ex: 1:2.000):</label>
+                <input type="text" id="scale" name="scale" class="input-field" placeholder="Ex: 1:2.000">
+            </div>
+            <div id="dimensions-field-container" class="hidden">
+                <label for="dimensions" class="label">Dimensões (Ex: 79 x 95 cm, 4465 x 3555 pixels):</label>
+                <input type="text" id="dimensions" name="dimensions" class="input-field" placeholder="Ex: 79 x 95 cm">
+            </div>
+            <div id="cartographicNotes-field-container" class="hidden md:col-span-2">
+                <label for="cartographicNotes" class="label">Notas Cartográficas (Ex: Projeção UTM, Satélite LANDSAT 7):</label>
+                <textarea id="cartographicNotes" name="cartographicNotes" class="input-field h-24 resize-y" placeholder="Ex: Projeção UTM."></textarea>
+            </div>
+            <!-- New fields for Events -->
+            <div id="eventName-field-container" class="hidden">
+                <label for="eventName" class="label">Nome do Evento (Ex: CONGRESSO BRASILEIRO DE BIBLIOTECONOMIA):</label>
+                <input type="text" id="eventName" name="eventName" class="input-field" placeholder="Ex: CONGRESSO BRASILEIRO DE BIBLIOTECONOMIA">
+            </div>
+            <div id="eventNumber-field-container" class="hidden">
+                <label for="eventNumber" class="label">Número do Evento (Ex: 10.):</label>
+                <input type="text" id="eventNumber" name="eventNumber" class="input-field" placeholder="Ex: 10.">
+            </div>
+            <div id="eventYear-field-container" class="hidden">
+                <label for="eventYear" class="label">Ano de Realização do Evento (Ex: 1979):</label>
+                <input type="text" id="eventYear" name="eventYear" class="input-field" placeholder="Ex: 1979">
+            </div>
+            <div id="eventPlace-field-container" class="hidden">
+                <label for="eventPlace" class="label">Local de Realização do Evento (Ex: Curitiba):</label>
+                <input type="text" id="eventPlace" name="eventPlace" class="input-field" placeholder="Ex: Curitiba">
+            </div>
+            <div id="eventTitle-field-container" class="hidden">
+                <label for="eventTitle" class="label">Título dos Anais/Proceedings (Ex: Anais [...]):</label>
+                <input type="text" id="eventTitle" name="eventTitle" class="input-field" placeholder="Ex: Anais [...]">
+            </div>
+            <div id="eventPublisher-field-container" class="hidden">
+                <label for="eventPublisher" class="label">Editora dos Anais/Proceedings (Ex: Associação Bibliotecária do Paraná):</label>
+                <input type="text" id="eventPublisher" name="eventPublisher" class="input-field" placeholder="Ex: Associação Bibliotecária do Paraná">
+            </div>
+            <div id="eventPublicationDate-field-container" class="hidden">
+                <label for="eventPublicationDate" class="label">Data de Publicação dos Anais/Proceedings (Ex: 1979):</label>
+                <input type="text" id="eventPublicationDate" name="eventPublicationDate" class="input-field" placeholder="Ex: 1979">
+            </div>
+            <!-- New fields for ISBN, ISSN, DOI -->
+            <div id="isbn-field-container" class="hidden">
+                <label for="isbn" class="label">ISBN (Ex: 978-85-07-07757-2):</label>
+                <input type="text" id="isbn" name="isbn" class="input-field" placeholder="Ex: 978-85-07-07757-2">
+            </div>
+            <div id="issn-field-container" class="hidden">
+                <label for="issn" class="label">ISSN (Ex: 1678-2674):</label>
+                <input type="text" id="issn" name="issn" class="input-field" placeholder="Ex: 1678-2674">
+            </div>
+            <div id="doi-field-container" class="hidden">
+                <label for="doi" class="label">DOI (Ex: 10.1590/S1519-70772014000100002):</label>
+                <input type="text" id="doi" name="doi" class="input-field" placeholder="Ex: 10.1590/S1519-70772014000100002">
+            </div>
+
+
+            <div id="availableAt-field-container" class="hidden">
+                <label for="availableAt" class="label">Disponível em (URL):</label>
+                <input type="url" id="availableAt" name="availableAt" class="input-field" placeholder="Ex: https://www.exemplo.com.br">
+            </div>
+            <div id="accessDate-field-container" class="hidden">
+                <label for="accessDate" class="label">Acesso em (dia mês. ano):</label>
+                <input type="text" id="accessDate" name="accessDate" class="input-field" placeholder="Ex: 10 jan. 2023">
+            </div>
+            <div id="year-field-container">
+                <label for="year" class="label">Ano de Publicação/Criação:</label>
+                <input type="text" id="year" name="year" class="input-field" placeholder="Ex: 2023">
+            </div>
+        </div>
+
+        <div class="mt-8 p-6 bg-blue-50 border border-blue-200 rounded-lg shadow-inner">
+            <h3 class="text-xl font-bold text-blue-800 mb-4">Referência Formatada (ABNT NBR 6023:2018)</h3>
+            <p id="formatted-reference" class="text-gray-900 leading-relaxed">Preencha os campos acima para ver a referência formatada.</p>
+        </div>
+
+        <div class="mt-6 p-6 bg-green-50 border border-green-200 rounded-lg shadow-inner">
+            <h3 class="text-xl font-bold text-green-800 mb-4">Como Citar (ABNT NBR 10520:2023)</h3>
+            <p id="formatted-citation" class="text-gray-900 leading-relaxed">
+                <span class="font-semibold">Citação Direta/Indireta:</span> Preencha os campos para ver a citação.
+            </p>
+            <p class="text-sm text-gray-600 mt-2">
+                A citação exata pode variar dependendo do contexto (citação direta, indireta, com ou sem número de página).
+                Use o formato fornecido como base.
+            </p>
+        </div>
+
+        <div class="mt-8 flex justify-center space-x-4">
+            <button id="generate-reference-btn" class="btn btn-secondary">
+                Gerar Referência
+            </button>
+            <button id="save-reference-btn" class="btn btn-primary">
+                Salvar Referência
+            </button>
+        </div>
+
+        <!-- Saved References List -->
+        <div id="saved-references-section" class="mt-8 p-6 bg-yellow-50 border border-yellow-200 rounded-lg shadow-inner hidden">
+            <h3 class="text-xl font-bold text-yellow-800 mb-4">Referências Salvas</h3>
+            <p class="text-sm text-red-700 mb-4 font-semibold">
+                **Atenção:** As referências salvas nesta lista NÃO são persistentes. Elas serão perdidas se você recarregar ou sair da página. Use o botão "Baixar Referências" para salvar seus dados.
+            </p>
+            <ul id="saved-references-list" class="list-decimal list-inside space-y-4">
+                <!-- References will be inserted here by JavaScript -->
+            </ul>
+            <div class="mt-6 flex justify-center space-x-4">
+                <button id="download-references-btn" class="btn btn-primary">
+                    Baixar Referências (.txt)
+                </button>
+                <button id="clear-references-btn" class="btn btn-danger">
+                    Limpar Lista
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- PDF Viewer Section -->
+    <div id="pdf-viewer-section" class="bg-white p-8 rounded-xl shadow-lg max-w-4xl mx-auto mb-8 hidden">
+        <h2 class="text-2xl font-bold text-gray-800 mb-6">Visualizador de PDF</h2>
+        <p class="text-gray-700 mb-4">
+            Carregue um arquivo PDF para visualizá-lo e, em seguida, insira manualmente as informações no "Formatador de Referências".
+        </p>
+        <div class="mb-6">
+            <label for="pdfUpload" class="label">Carregar PDF:</label>
+            <input type="file" id="pdfUpload" accept="application/pdf" class="input-field file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+        </div>
+
+        <div id="pdf-error-message" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4 hidden" role="alert">
+            <strong class="font-bold">Erro:</strong>
+            <span id="pdf-error-text" class="block sm:inline"></span>
+        </div>
+
+        <div id="pdf-loading-indicator" class="flex flex-col items-center justify-center h-48 bg-gray-50 rounded-lg hidden">
+            <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mb-4"></div>
+            <p class="text-blue-600 font-medium">Carregando PDF...</p>
+        </div>
+
+        <div id="pdf-canvas-container" class="mt-6 border border-gray-300 rounded-lg overflow-hidden shadow-md hidden">
+            <h3 class="text-lg font-semibold bg-gray-100 p-3 border-b border-gray-200">Conteúdo do PDF (Primeira Página)</h3>
+            <div class="p-4 flex justify-center bg-gray-50">
+                <canvas id="pdf-canvas" class="max-w-full h-auto border border-gray-200 rounded-md"></canvas>
+            </div>
+            <p class="p-4 text-sm text-gray-600 bg-gray-100 border-t border-gray-200">
+                <span class="font-bold">Instruções:</span> Visualize o conteúdo do PDF acima para extrair manualmente as informações (autor, título, ano, etc.) e insira-as no "Formatador de Referências" para gerar a referência ABNT correta.
+            </p>
+        </div>
+    </div>
+
+    <footer class="text-center text-gray-500 text-sm mt-8 pb-4">
+        Desenvolvido com ❤️ para ajudar na formatação ABNT.
+    </footer>
+
+    <!-- Custom Modal HTML -->
+    <div id="custom-modal-overlay" class="modal-overlay hidden">
+        <div class="modal-content">
+            <p id="modal-message" class="text-lg font-semibold text-gray-800 mb-4"></p>
+            <div class="flex justify-end space-x-3">
+                <button id="modal-cancel-btn" class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 transition duration-200 hidden">
+                    Cancelar
+                </button>
+                <button id="modal-ok-btn" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition duration-200">
+                    OK
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global state variables
+        let currentView = 'formatter';
+        let referenceData = {
+            type: 'book',
+            author: '', title: '', subtitle: '', edition: '', place: '', publisher: '', year: '',
+            periodicalTitle: '', volume: '', number: '', pages: '', availableAt: '', accessDate: '',
+            institution: '', courseProgram: '', documentType: '', pagesOrVolumes: '',
+            videoDuration: '', platformProducer: '',
+            jurisdiction: '', legislationType: '', legislationNumber: '', legislationDate: '', ementa: '',
+            publicationVehicle: '', publicationLocation: '', publicationVolumeNumber: '', publicationPages: '', publicationDate: '',
+            bookAuthor: '', bookTitle: '', bookSubtitle: '', bookEdition: '', bookPlace: '', bookPublisher: '', bookYear: '', chapterPages: '', bookOrganizer: '',
+            imageType: '', imageDimensions: '', imageLocation: '',
+            cartographicType: '', scale: '', dimensions: '', cartographicNotes: '',
+            eventName: '', eventNumber: '', eventYear: '', eventPlace: '', eventTitle: '', eventPublisher: '', eventPublicationDate: '',
+            isbn: '', issn: '', doi: '' // Initialize new fields
+        };
+        let savedReferences = []; // Non-persistent list
+
+        // DOM elements
+        const formatterTab = document.getElementById('formatter-tab');
+        const pdfViewerTab = document.getElementById('pdf-viewer-tab');
+        const formatterSection = document.getElementById('formatter-section');
+        const pdfViewerSection = document.getElementById('pdf-viewer-section');
+
+        const typeSelect = document.getElementById('type');
+        const formattedReferenceDisplay = document.getElementById('formatted-reference');
+        const formattedCitationDisplay = document.getElementById('formatted-citation');
+        const generateReferenceBtn = document.getElementById('generate-reference-btn');
+        const saveReferenceBtn = document.getElementById('save-reference-btn');
+        const savedReferencesSection = document.getElementById('saved-references-section');
+        const savedReferencesList = document.getElementById('saved-references-list');
+        const downloadReferencesBtn = document.getElementById('download-references-btn');
+        const clearReferencesBtn = document.getElementById('clear-references-btn');
+
+        const pdfUploadInput = document.getElementById('pdfUpload');
+        const pdfCanvas = document.getElementById('pdf-canvas');
+        const pdfLoadingIndicator = document.getElementById('pdf-loading-indicator');
+        const pdfErrorMessage = document.getElementById('pdf-error-message');
+        const pdfErrorText = document.getElementById('pdf-error-text');
+        const pdfCanvasContainer = document.getElementById('pdf-canvas-container');
+
+        // Modal DOM elements
+        const customModalOverlay = document.getElementById('custom-modal-overlay');
+        const modalMessageElem = document.getElementById('modal-message');
+        const modalOkBtn = document.getElementById('modal-ok-btn');
+        const modalCancelBtn = document.getElementById('modal-cancel-btn');
+        let currentModalOnConfirm = () => {}; // Callback for confirm modal
+
+        // Helper function to show custom alert modal
+        function showAlert(message) {
+            modalMessageElem.textContent = message;
+            modalCancelBtn.classList.add('hidden'); // Hide cancel button for alerts
+            modalOkBtn.onclick = () => customModalOverlay.classList.add('hidden');
+            customModalOverlay.classList.remove('hidden');
+        }
+
+        // Helper function to show custom confirm modal
+        function showConfirm(message, onConfirmCallback) {
+            modalMessageElem.textContent = message;
+            modalCancelBtn.classList.remove('hidden'); // Show cancel button for confirms
+            modalOkBtn.onclick = () => {
+                onConfirmCallback(true);
+                customModalOverlay.classList.add('hidden');
+            };
+            modalCancelBtn.onclick = () => {
+                onConfirmCallback(false);
+                customModalOverlay.classList.add('hidden');
+            };
+            customModalOverlay.classList.remove('hidden');
+        }
+
+        // Function to update dynamic input fields based on selected type
+        function updateDynamicFields() {
+            const allFields = {
+                subtitle: document.getElementById('subtitle-field-container'),
+                edition: document.getElementById('edition-field-container'),
+                place: document.getElementById('place-field-container'),
+                publisher: document.getElementById('publisher-field-container'),
+                periodicalTitle: document.getElementById('periodicalTitle-field-container'),
+                volume: document.getElementById('volume-field-container'),
+                number: document.getElementById('number-field-container'),
+                pages: document.getElementById('pages-field-container'),
+                institution: document.getElementById('institution-field-container'),
+                courseProgram: document.getElementById('courseProgram-field-container'),
+                documentType: document.getElementById('documentType-field-container'),
+                pagesOrVolumes: document.getElementById('pagesOrVolumes-field-container'),
+                videoDuration: document.getElementById('videoDuration-field-container'),
+                platformProducer: document.getElementById('platformProducer-field-container'),
+                jurisdiction: document.getElementById('jurisdiction-field-container'),
+                legislationType: document.getElementById('legislationType-field-container'),
+                legislationNumber: document.getElementById('legislationNumber-field-container'),
+                legislationDate: document.getElementById('legislationDate-field-container'),
+                ementa: document.getElementById('ementa-field-container'),
+                publicationVehicle: document.getElementById('publicationVehicle-field-container'),
+                publicationLocation: document.getElementById('publicationLocation-field-container'),
+                publicationVolumeNumber: document.getElementById('publicationVolumeNumber-field-container'),
+                publicationPages: document.getElementById('publicationPages-field-container'),
+                publicationDate: document.getElementById('publicationDate-field-container'),
+                bookAuthor: document.getElementById('bookAuthor-field-container'),
+                bookTitle: document.getElementById('bookTitle-field-container'),
+                bookSubtitle: document.getElementById('bookSubtitle-field-container'),
+                bookEdition: document.getElementById('bookEdition-field-container'),
+                bookPlace: document.getElementById('bookPlace-field-container'),
+                bookPublisher: document.getElementById('bookPublisher-field-container'),
+                bookYear: document.getElementById('bookYear-field-container'),
+                chapterPages: document.getElementById('chapterPages-field-container'),
+                bookOrganizer: document.getElementById('bookOrganizer-field-container'),
+                imageType: document.getElementById('imageType-field-container'),
+                imageDimensions: document.getElementById('imageDimensions-field-container'),
+                imageLocation: document.getElementById('imageLocation-field-container'),
+                cartographicType: document.getElementById('cartographicType-field-container'),
+                scale: document.getElementById('scale-field-container'),
+                dimensions: document.getElementById('dimensions-field-container'),
+                cartographicNotes: document.getElementById('cartographicNotes-field-container'),
+                eventName: document.getElementById('eventName-field-container'),
+                eventNumber: document.getElementById('eventNumber-field-container'),
+                eventYear: document.getElementById('eventYear-field-container'),
+                eventPlace: document.getElementById('eventPlace-field-container'),
+                eventTitle: document.getElementById('eventTitle-field-container'),
+                eventPublisher: document.getElementById('eventPublisher-field-container'),
+                eventPublicationDate: document.getElementById('eventPublicationDate-field-container'),
+                isbn: document.getElementById('isbn-field-container'), // New field
+                issn: document.getElementById('issn-field-container'), // New field
+                doi: document.getElementById('doi-field-container'),   // New field
+                availableAt: document.getElementById('availableAt-field-container'),
+                accessDate: document.getElementById('accessDate-field-container'),
+                year: document.getElementById('year-field-container'),
+                author_main: document.getElementById('author-field-container'), // Original author field
+                title_main: document.getElementById('title-field-container') // Original title field
+            };
+
+            // Hide all by default
+            Object.values(allFields).forEach(field => field && field.classList.add('hidden'));
+
+            // Show common fields
+            allFields.year.classList.remove('hidden');
+            allFields.author_main.classList.remove('hidden');
+            allFields.title_main.classList.remove('hidden');
+
+
+            switch (referenceData.type) {
+                case 'book':
+                    allFields.subtitle.classList.remove('hidden');
+                    allFields.edition.classList.remove('hidden');
+                    allFields.place.classList.remove('hidden');
+                    allFields.publisher.classList.remove('hidden');
+                    allFields.isbn.classList.remove('hidden'); // Show ISBN for books
+                    break;
+                case 'article':
+                    allFields.periodicalTitle.classList.remove('hidden');
+                    allFields.volume.classList.remove('hidden');
+                    allFields.number.classList.remove('hidden');
+                    allFields.pages.classList.remove('hidden');
+                    allFields.place.classList.remove('hidden');
+                    allFields.issn.classList.remove('hidden'); // Show ISSN for articles
+                    allFields.doi.classList.remove('hidden');   // Show DOI for articles
+                    break;
+                case 'website':
+                    allFields.availableAt.classList.remove('hidden');
+                    allFields.accessDate.classList.remove('hidden');
+                    allFields.doi.classList.remove('hidden'); // Show DOI for websites
+                    break;
+                case 'tcc':
+                case 'dissertation':
+                case 'thesis':
+                    allFields.subtitle.classList.remove('hidden');
+                    allFields.institution.classList.remove('hidden');
+                    allFields.courseProgram.classList.remove('hidden');
+                    allFields.documentType.classList.remove('hidden');
+                    allFields.pagesOrVolumes.classList.remove('hidden');
+                    allFields.place.classList.remove('hidden');
+                    allFields.doi.classList.remove('hidden'); // Show DOI for academic works (if applicable)
+                    break;
+                case 'youtube':
+                    allFields.videoDuration.classList.remove('hidden');
+                    allFields.platformProducer.classList.remove('hidden');
+                    allFields.availableAt.classList.remove('hidden');
+                    allFields.accessDate.classList.remove('hidden');
+                    allFields.place.classList.remove('hidden');
+                    allFields.doi.classList.remove('hidden'); // Show DOI for YouTube (if applicable)
+                    break;
+                case 'legislation':
+                    allFields.author_main.classList.add('hidden');
+                    allFields.title_main.classList.add('hidden');
+                    allFields.year.classList.add('hidden');
+
+                    allFields.jurisdiction.classList.remove('hidden');
+                    allFields.legislationType.classList.remove('hidden');
+                    allFields.legislationNumber.classList.remove('hidden');
+                    allFields.legislationDate.classList.remove('hidden');
+                    allFields.ementa.classList.remove('hidden');
+                    allFields.publicationVehicle.classList.remove('hidden');
+                    allFields.publicationLocation.classList.remove('hidden');
+                    allFields.publicationVolumeNumber.classList.remove('hidden');
+                    allFields.publicationPages.classList.remove('hidden');
+                    allFields.publicationDate.classList.remove('hidden');
+                    allFields.availableAt.classList.remove('hidden');
+                    allFields.accessDate.classList.remove('hidden');
+                    allFields.doi.classList.remove('hidden'); // Show DOI for legislation (if applicable)
+                    break;
+                case 'chapter':
+                    allFields.subtitle.classList.remove('hidden');
+                    allFields.bookAuthor.classList.remove('hidden');
+                    allFields.bookOrganizer.classList.remove('hidden');
+                    allFields.bookTitle.classList.remove('hidden');
+                    allFields.bookSubtitle.classList.remove('hidden');
+                    allFields.bookEdition.classList.remove('hidden');
+                    allFields.bookPlace.classList.remove('hidden');
+                    allFields.bookPublisher.classList.remove('hidden');
+                    allFields.bookYear.classList.remove('hidden');
+                    allFields.chapterPages.classList.remove('hidden');
+                    allFields.availableAt.classList.remove('hidden');
+                    allFields.accessDate.classList.remove('hidden');
+                    allFields.year.classList.add('hidden');
+                    allFields.isbn.classList.remove('hidden'); // Show ISBN for chapter (for the main book)
+                    allFields.doi.classList.remove('hidden');   // Show DOI for chapter (if applicable)
+                    break;
+                case 'image':
+                    allFields.imageType.classList.remove('hidden');
+                    allFields.imageDimensions.classList.remove('hidden');
+                    allFields.imageLocation.classList.remove('hidden');
+                    allFields.availableAt.classList.remove('hidden');
+                    allFields.accessDate.classList.remove('hidden');
+                    allFields.doi.classList.remove('hidden'); // Show DOI for images (if applicable)
+                    break;
+                case 'map_printed':
+                case 'map_electronic':
+                    allFields.cartographicType.classList.remove('hidden');
+                    allFields.scale.classList.remove('hidden');
+                    allFields.dimensions.classList.remove('hidden');
+                    allFields.cartographicNotes.classList.remove('hidden');
+                    allFields.place.classList.remove('hidden');
+                    allFields.publisher.classList.remove('hidden');
+                    if (referenceData.type === 'map_electronic') {
+                        allFields.availableAt.classList.remove('hidden');
+                        allFields.accessDate.classList.remove('hidden');
+                        allFields.doi.classList.remove('hidden'); // Show DOI for electronic maps
+                    }
+                    allFields.isbn.classList.remove('hidden'); // Show ISBN for maps (if applicable)
+                    break;
+                case 'event_monograph':
+                case 'event_electronic':
+                case 'event_part_monograph':
+                    allFields.eventName.classList.remove('hidden');
+                    allFields.eventNumber.classList.remove('hidden');
+                    allFields.eventYear.classList.remove('hidden');
+                    allFields.eventPlace.classList.remove('hidden');
+                    allFields.eventTitle.classList.remove('hidden');
+                    allFields.eventPublisher.classList.remove('hidden');
+                    allFields.eventPublicationDate.classList.remove('hidden');
+                    allFields.issn.classList.remove('hidden'); // Show ISSN for events (if published in a periodical)
+                    allFields.doi.classList.remove('hidden');   // Show DOI for events (if applicable)
+                    if (referenceData.type === 'event_electronic') {
+                        allFields.availableAt.classList.remove('hidden');
+                        allFields.accessDate.classList.remove('hidden');
+                    }
+                    if (referenceData.type === 'event_part_monograph') {
+                        allFields.author_main.classList.remove('hidden');
+                        allFields.title_main.classList.remove('hidden');
+                        allFields.subtitle.classList.remove('hidden');
+                        allFields.chapterPages.classList.remove('hidden');
+                    } else {
+                        allFields.author_main.classList.add('hidden');
+                        allFields.title_main.classList.add('hidden');
+                    }
+                    allFields.year.classList.add('hidden');
+                    break;
+            }
+        }
+
+        // Function to format the ABNT reference and citation
+        function formatABNTReference() {
+            const {
+                type, author, title, subtitle, edition, place, publisher, year,
+                periodicalTitle, volume, number, pages, availableAt, accessDate,
+                institution, courseProgram, documentType, pagesOrVolumes,
+                videoDuration, platformProducer,
+                jurisdiction, legislationType, legislationNumber, legislationDate, ementa,
+                publicationVehicle, publicationLocation, publicationVolumeNumber, publicationPages, publicationDate,
+                bookAuthor, bookTitle, bookSubtitle, bookEdition, bookPlace, bookPublisher, bookYear, chapterPages, bookOrganizer,
+                imageType, imageDimensions, imageLocation,
+                cartographicType, scale, dimensions, cartographicNotes,
+                eventName, eventNumber, eventYear, eventPlace, eventTitle, eventPublisher, eventPublicationDate,
+                isbn, issn, doi
+            } = referenceData;
+
+            let ref = '';
+            let citation = '';
+            let authorsArray = author.split(';').map(a => a.trim()).filter(a => a);
+
+            const formatReferenceAuthor = (authorName) => {
+                const parts = authorName.split(' ').filter(p => p);
+                if (parts.length > 0) {
+                    const lastName = parts[parts.length - 1].toUpperCase();
+                    const firstName = parts.slice(0, parts.length - 1).join(' ');
+                    return `${lastName}, ${firstName}`;
+                }
+                return '';
+            };
+
+            const formatCitationAuthor = (authorName) => {
+                const parts = authorName.split(' ').filter(p => p);
+                if (parts.length > 0) {
+                    const lastName = parts[parts.length - 1];
+                    return `${lastName}`;
+                }
+                return '';
+            };
+
+            // Helper to format title element based on ABNT NBR 6023, section 6.7 and 8.2.1
+            // If there are authors, title is normal case, bold.
+            // Otherwise (no author), the title is the entry element and should have its first significant word(s) in ALL CAPS, bold.
+            const formatTitleElement = (titleString, authorsArr) => {
+                if (authorsArr && authorsArr.length > 0) {
+                    // If there are authors, title is normal case, bold.
+                    return `<span class="font-bold">${titleString}</span>`;
+                } else {
+                    // If no authors, title is the entry element. Apply ABNT 8.2.1 rule.
+                    // "letras maiúsculas na primeira palavra, incluindo artigo (definido ou indefinido) e palavra monossilábica iniciais (se houver)."
+                    const words = titleString.split(' ');
+                    if (words.length === 0) return '';
+
+                    let formattedTitleParts = [];
+                    const firstWord = words[0];
+                    const lowerFirstWord = firstWord.toLowerCase();
+                    // Expanded list of articles and common monosyllables that can start a title and be capitalized with the next word
+                    const articlesAndMonosyllables = ['a', 'o', 'as', 'os', 'um', 'uma', 'uns', 'umas', 'de', 'do', 'da', 'dos', 'das', 'e', 'em', 'no', 'na', 'nos', 'nas', 'por', 'pra', 'com', 'sem', 'sob', 'sobre', 'ante', 'após', 'até', 'contra', 'entre', 'para', 'perante', 'desde', 'durante', 'mediante', 'trás'];
+
+                    if (articlesAndMonosyllables.includes(lowerFirstWord) && words.length > 1) {
+                        // Capitalize the article/monosyllable and the very next word
+                        formattedTitleParts.push(firstWord.toUpperCase());
+                        formattedTitleParts.push(words[1].toUpperCase());
+                        formattedTitleParts = formattedTitleParts.concat(words.slice(2));
+                    } else {
+                        // Capitalize only the first word
+                        formattedTitleParts.push(firstWord.toUpperCase());
+                        formattedTitleParts = formattedTitleParts.concat(words.slice(1));
+                    }
+                    return `<span class="font-bold">${formattedTitleParts.join(' ')}</span>`;
+                }
+            };
+
+
+            let citationAuthors = '';
+            if (authorsArray.length > 0) {
+                if (authorsArray.length === 1) {
+                    citationAuthors = formatCitationAuthor(authorsArray[0]);
+                } else if (authorsArray.length <= 3) {
+                    citationAuthors = authorsArray.map(formatCitationAuthor).join('; ');
+                } else {
+                    citationAuthors = `${formatCitationAuthor(authorsArray[0])} et al.`;
+                }
+            } else if (type === 'website' || type === 'youtube' || type === 'image' || type.startsWith('map_')) {
+                // For these types, if no author, the title is the main entry and its first significant part is capitalized.
+                // For citation, we just need the first word for simplicity.
+                citationAuthors = title.split(' ')[0];
+            } else if (type === 'legislation') {
+                citationAuthors = jurisdiction;
+            } else if (type === 'chapter' && bookAuthor) {
+                const bookAuthorsArray = bookAuthor.split(';').map(a => a.trim()).filter(a => a);
+                if (bookAuthorsArray.length > 0) {
+                    if (bookAuthorsArray.length === 1) {
+                        citationAuthors = formatCitationAuthor(bookAuthorsArray[0]);
+                    } else if (bookAuthorsArray.length <= 3) {
+                        citationAuthors = bookAuthorsArray.map(formatCitationAuthor).join('; ');
+                    } else {
+                        citationAuthors = `${formatCitationAuthor(bookAuthorsArray[0])} et al.`;
+                    }
+                } else {
+                    citationAuthors = bookTitle.split(' ')[0];
+                }
+            } else if (type.startsWith('event_')) {
+                citationAuthors = eventName.split(' ')[0];
+            }
+
+
+            switch (type) {
+                case 'book':
+                    if (authorsArray.length > 0) {
+                        ref += authorsArray.map(formatReferenceAuthor).join('; ') + '. ';
+                    }
+                    ref += formatTitleElement(title, authorsArray); // Title is normal case, bold if author, ALL CAPS if no author
+                    if (subtitle) {
+                        ref += `: ${subtitle}.`;
+                    } else {
+                        ref += '.';
+                    }
+                    if (edition) {
+                        ref += ` ${edition}. ed.`;
+                    }
+                    if (place) {
+                        ref += ` ${place}:`;
+                    }
+                    if (publisher) {
+                        ref += ` ${publisher},`;
+                    }
+                    if (year) {
+                        ref += ` ${year}.`;
+                    }
+                    if (isbn) {
+                        ref += ` ISBN ${isbn}.`;
+                    }
+                    break;
+
+                case 'article':
+                    if (authorsArray.length > 0) {
+                        ref += authorsArray.map(formatReferenceAuthor).join('; ') + '. ';
+                    }
+                    ref += `${title}. `; // Article title is normal case, no bold
+                    if (periodicalTitle) {
+                        ref += `<span class="font-bold">${periodicalTitle}</span>, `; // Periodical title is normal case and bold (CORRECTED)
+                    }
+                    if (place) {
+                        ref += `${place}, `;
+                    }
+                    if (volume) {
+                        ref += `v. ${volume}, `;
+                    }
+                    if (number) {
+                        ref += `n. ${number}, `;
+                    }
+                    if (pages) {
+                        ref += `p. ${pages}, `;
+                    }
+                    if (year) {
+                        ref += `${year}.`;
+                    }
+                    if (issn) {
+                        ref += ` ISSN ${issn}.`;
+                    }
+                    if (doi) {
+                        ref += ` DOI: ${doi}.`;
+                    }
+                    break;
+
+                case 'website':
+                    if (authorsArray.length > 0) {
+                        ref += authorsArray.map(formatReferenceAuthor).join('; ') + '. ';
+                    }
+                    ref += formatTitleElement(title, authorsArray); // Title is normal case, bold if author, ALL CAPS if no author
+                    if (year) {
+                        ref += `${year}. `;
+                    }
+                    if (availableAt) {
+                        ref += `Disponível em: ${availableAt}. `;
+                    }
+                    if (accessDate) {
+                        ref += `Acesso em: ${accessDate}.`;
+                    }
+                    if (doi) {
+                        ref += ` DOI: ${doi}.`;
+                    }
+                    break;
+
+                case 'tcc':
+                case 'dissertation':
+                case 'thesis':
+                    if (authorsArray.length > 0) {
+                        ref += authorsArray.map(formatReferenceAuthor).join('; ') + '. ';
+                    }
+                    ref += formatTitleElement(title, authorsArray); // Title is normal case, bold if author, ALL CAPS if no author
+                    if (subtitle) {
+                        ref += `: ${subtitle}.`;
+                    } else {
+                        ref += '.';
+                    }
+                    if (year) {
+                        ref += ` ${year}.`;
+                    }
+                    if (pagesOrVolumes) {
+                        ref += ` ${pagesOrVolumes}.`;
+                    }
+                    if (documentType) {
+                        ref += ` ${documentType}`;
+                        if (courseProgram) {
+                            ref += ` (${courseProgram})`;
+                        }
+                        ref += ' –';
+                    }
+                    if (institution) {
+                        ref += ` ${institution},`;
+                    }
+                    if (place) {
+                        ref += ` ${place},`;
+                    }
+                    if (year) {
+                        ref += ` ${year}.`;
+                    }
+                    if (doi) {
+                        ref += ` DOI: ${doi}.`;
+                    }
+                    break;
+
+                case 'youtube':
+                    if (authorsArray.length > 0) {
+                        ref += authorsArray.map(formatReferenceAuthor).join('; ') + '. ';
+                    } else if (platformProducer) {
+                        ref += `${platformProducer.toUpperCase()}. `; // Channel name is ALL CAPS
+                    }
+                    ref += formatTitleElement(title, authorsArray); // Title is normal case, bold if author, ALL CAPS if no author
+                    ref += ` [Vídeo online]. `;
+                    if (place) {
+                        ref += `${place}: `;
+                    }
+                    if (platformProducer && !authorsArray.length) {
+                        ref += `${platformProducer}, `;
+                    }
+                    if (year) {
+                        ref += `${year}. `;
+                    }
+                    if (videoDuration) {
+                        ref += `${videoDuration}. `;
+                    }
+                    if (availableAt) {
+                        ref += `Disponível em: ${availableAt}. `;
+                    }
+                    if (accessDate) {
+                        ref += `Acesso em: ${accessDate}.`;
+                    }
+                    if (doi) {
+                        ref += ` DOI: ${doi}.`;
+                    }
+                    break;
+
+                case 'legislation':
+                    if (jurisdiction) {
+                        ref += `${jurisdiction.toUpperCase()}. `; // Jurisdiction is ALL CAPS
+                    }
+                    if (legislationType && legislationNumber && legislationDate) {
+                        ref += `[${legislationType} ${legislationNumber}, de ${legislationDate}]. `;
+                    } else if (legislationType && legislationNumber) {
+                        ref += `[${legislationType} ${legislationNumber}]. `;
+                    } else if (legislationType) {
+                        ref += `[${legislationType}]. `;
+                    }
+                    if (ementa) {
+                        ref += `${ementa}. `; // Ementa is normal case
+                    }
+                    if (publicationVehicle) {
+                        ref += `${publicationVehicle}: `;
+                    }
+                    if (publicationLocation) {
+                        ref += `${publicationLocation}, `;
+                    }
+                    if (publicationVolumeNumber) {
+                        ref += `${publicationVolumeNumber}, `;
+                    }
+                    if (publicationPages) {
+                        ref += `p. ${publicationPages}, `;
+                    }
+                    if (publicationDate) {
+                        ref += `${publicationDate}.`;
+                    }
+                    if (availableAt) {
+                        ref += ` Disponível em: ${availableAt}.`;
+                    }
+                    if (accessDate) {
+                        ref += ` Acesso em: ${accessDate}.`;
+                    }
+                    if (doi) {
+                        ref += ` DOI: ${doi}.`;
+                    }
+                    break;
+
+                case 'chapter':
+                    if (authorsArray.length > 0) {
+                        ref += authorsArray.map(formatReferenceAuthor).join('; ') + '. ';
+                    }
+                    ref += `${title}. `; // Chapter title is normal case
+                    if (subtitle) {
+                        ref += `: ${subtitle}. `;
+                    }
+                    ref += `In: `;
+
+                    const bookAuthorsArray = bookAuthor.split(';').map(a => a.trim()).filter(a => a);
+                    if (bookAuthorsArray.length > 0) {
+                        ref += bookAuthorsArray.map(formatReferenceAuthor).join('; ') + '. ';
+                    } else if (bookOrganizer) {
+                        ref += `${bookOrganizer.toUpperCase()} (org.). `; // Organizer is ALL CAPS
+                    }
+
+                    // Book title for chapter is ALL CAPS and bold
+                    ref += `<span class="font-bold">${bookTitle.toUpperCase()}</span>`;
+                    if (bookSubtitle) {
+                        ref += `: ${bookSubtitle}.`;
+                    } else {
+                        ref += '.';
+                    }
+                    if (bookEdition) {
+                        ref += ` ${bookEdition}. ed.`;
+                    }
+                    if (bookPlace) {
+                        ref += ` ${bookPlace}:`;
+                    }
+                    if (bookPublisher) {
+                        ref += ` ${bookPublisher},`;
+                    }
+                    if (bookYear) {
+                        ref += ` ${bookYear}.`;
+                    }
+                    if (chapterPages) {
+                        ref += ` p. ${chapterPages}.`;
+                    }
+                    if (availableAt) {
+                        ref += ` Disponível em: ${availableAt}.`;
+                    }
+                    if (accessDate) {
+                        ref += ` Acesso em: ${accessDate}.`;
+                    }
+                    if (isbn) {
+                        ref += ` ISBN ${isbn}.`;
+                    }
+                    if (doi) {
+                        ref += ` DOI: ${doi}.`;
+                    }
+                    break;
+
+                case 'image':
+                    if (authorsArray.length > 0) {
+                        ref += authorsArray.map(formatReferenceAuthor).join('; ') + '. ';
+                    }
+                    ref += formatTitleElement(title, authorsArray); // Title is normal case, bold if author, ALL CAPS if no author
+                    if (year) {
+                        ref += `${year}. `;
+                    }
+                    if (imageType) {
+                        ref += `${imageType}. `;
+                    }
+                    if (imageDimensions) {
+                        ref += `${imageDimensions}. `;
+                    }
+                    if (imageLocation) {
+                        ref += `${imageLocation}.`;
+                    }
+                    if (availableAt) {
+                        ref += `Disponível em: ${availableAt}.`;
+                    }
+                    if (accessDate) {
+                        ref += `Acesso em: ${accessDate}.`;
+                    }
+                    if (doi) {
+                        ref += ` DOI: ${doi}.`;
+                    }
+                    break;
+
+                case 'map_printed':
+                case 'map_electronic':
+                    if (authorsArray.length > 0) {
+                        ref += authorsArray.map(formatReferenceAuthor).join('; ') + '. ';
+                    }
+                    ref += formatTitleElement(title, authorsArray); // Title is normal case, bold if author, ALL CAPS if no author
+                    if (subtitle) {
+                        ref += `: ${subtitle}.`;
+                    } else {
+                        ref += '.';
+                    }
+                    if (place) {
+                        ref += ` ${place}:`;
+                    }
+                    if (publisher) {
+                        ref += ` ${publisher},`;
+                    }
+                    if (year) {
+                        ref += ` ${year}.`;
+                    }
+                    if (cartographicType) {
+                        ref += ` 1 ${cartographicType}. `;
+                    }
+                    if (dimensions) {
+                        ref += `${dimensions}. `;
+                    }
+                    if (scale) {
+                        ref += `Escala ${scale}. `;
+                    }
+                    if (cartographicNotes) {
+                        ref += `${cartographicNotes}.`;
+                    }
+                    if (type === 'map_electronic') {
+                        if (availableAt) {
+                            ref += ` Disponível em: ${availableAt}.`;
+                        }
+                        if (accessDate) {
+                            ref += ` Acesso em: ${accessDate}.`;
+                        }
+                        if (doi) {
+                            ref += ` DOI: ${doi}.`;
+                        }
+                    }
+                    if (isbn) {
+                        ref += ` ISBN ${isbn}.`;
+                    }
+                    break;
+
+                case 'event_monograph':
+                case 'event_electronic':
+                case 'event_part_monograph':
+                    if (type === 'event_part_monograph') {
+                        if (authorsArray.length > 0) {
+                            ref += authorsArray.map(formatReferenceAuthor).join('; ') + '. ';
+                        }
+                        ref += `${title}. `; // Title of the specific paper (normal case)
+                        if (subtitle) {
+                            ref += `: ${subtitle}. `;
+                        }
+                        ref += `In: `;
+                    }
+                    
+                    if (eventName) {
+                        ref += `<span class="font-bold">${eventName.toUpperCase()}</span>`; // Event name is ALL CAPS and bold
+                    }
+                    if (eventNumber) {
+                        ref += `, ${eventNumber}.`;
+                    }
+                    if (eventYear) {
+                        ref += `, ${eventYear},`;
+                    }
+                    if (eventPlace) {
+                        ref += ` ${eventPlace}. `;
+                    }
+
+                    if (type === 'event_monograph' || type === 'event_electronic') {
+                        if (eventTitle) {
+                            ref += `<span class="font-bold">${eventTitle.toUpperCase()}</span>. `; // Title of proceedings (ALL CAPS and bold)
+                        }
+                        if (eventPlace) {
+                            ref += `${eventPlace}: `;
+                        }
+                        if (eventPublisher) {
+                            ref += `${eventPublisher}, `;
+                        }
+                        if (eventPublicationDate) {
+                            ref += `${eventPublicationDate}.`;
+                        }
+                    } else if (type === 'event_part_monograph') {
+                        if (eventTitle) {
+                            ref += `<span class="font-bold">${eventTitle.toUpperCase()}</span>. `; // Title of proceedings (ALL CAPS and bold)
+                        }
+                        if (eventPlace) {
+                            ref += `${eventPlace}: `;
+                        }
+                        if (eventPublisher) {
+                            ref += `${eventPublisher}, `;
+                        }
+                        if (eventPublicationDate) {
+                            ref += `${eventPublicationDate}.`;
+                        }
+                        if (chapterPages) {
+                            ref += ` p. ${chapterPages}.`;
+                        }
+                    }
+
+                    if (availableAt) {
+                        ref += ` Disponível em: ${availableAt}.`;
+                    }
+                    if (accessDate) {
+                        ref += ` Acesso em: ${accessDate}.`;
+                    }
+                    if (issn) {
+                        ref += ` ISSN ${issn}.`;
+                    }
+                    if (doi) {
+                        ref += ` DOI: ${doi}.`;
+                    }
+                    break;
+
+                default:
+                    ref = 'Selecione um tipo de referência e preencha os campos.';
+                    break;
+            }
+
+            // Generate citation (ABNT NBR 10520:2023)
+            let citationYear = year;
+            if (type === 'legislation' && publicationDate) {
+                citationYear = publicationDate.substring(publicationDate.lastIndexOf(' ') + 1);
+            } else if (type === 'chapter' && bookYear) {
+                citationYear = bookYear;
+            } else if (type.startsWith('event_') && eventYear) {
+                citationYear = eventYear;
+            } else if (type.startsWith('map_') && year) { // For maps, use the year
+                citationYear = year;
+            }
+
+
+            if (citationAuthors && citationYear) {
+                citation = `(${citationAuthors}, ${citationYear})`;
+            } else if (citationAuthors) {
+                citation = `(${citationAuthors})`;
+            } else {
+                citation = 'Preencha os campos para gerar a citação.';
+            }
+
+            formattedReferenceDisplay.innerHTML = ref;
+            formattedCitationDisplay.innerHTML = citation;
+        }
+
+        // Function to handle changes in input fields and update referenceData
+        function handleInputChange(event) {
+            const { name, value } = event.target;
+            referenceData = { ...referenceData, [name]: value };
+            formatABNTReference(); // Reformat on every input change
+            updateDynamicFields(); // Update visible fields
+        }
+
+        // Function to initialize event listeners for all input fields
+        function setupEventListeners() {
+            const formInputs = document.querySelectorAll('#formatter-section .input-field, #formatter-section textarea');
+            formInputs.forEach(input => {
+                input.addEventListener('input', handleInputChange);
+            });
+            typeSelect.addEventListener('change', handleInputChange); // For type select
+        }
+
+        // Function to handle PDF file selection and rendering
+        let currentPdfUrl = null;
+        async function handlePdfFileChange(event) {
+            const file = event.target.files[0];
+            if (file && file.type === 'application/pdf') {
+                if (currentPdfUrl) {
+                    URL.revokeObjectURL(currentPdfUrl); // Clean up previous URL
+                }
+                currentPdfUrl = URL.createObjectURL(file);
+                pdfErrorMessage.classList.add('hidden');
+                pdfErrorText.textContent = '';
+                await renderPdf(currentPdfUrl);
+            } else {
+                if (currentPdfUrl) {
+                    URL.revokeObjectURL(currentPdfUrl);
+                    currentPdfUrl = null;
+                }
+                pdfCanvasContainer.classList.add('hidden');
+                pdfErrorMessage.classList.remove('hidden');
+                pdfErrorText.textContent = 'Por favor, selecione um arquivo PDF válido.';
+                showAlert('Por favor, selecione um arquivo PDF válido.');
+            }
+        }
+
+        // Function to render PDF on canvas
+        async function renderPdf(url) {
+            pdfLoadingIndicator.classList.remove('hidden');
+            pdfCanvasContainer.classList.add('hidden'); // Hide canvas while loading
+            pdfErrorMessage.classList.add('hidden'); // Hide error message
+
+            // Load pdf.js library if not already loaded
+            if (!window.pdfjsLib) {
+                const script = document.createElement('script');
+                script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js';
+                document.body.appendChild(script);
+                await new Promise(resolve => script.onload = resolve);
+                if (window.pdfjsLib) {
+                    window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.worker.min.js';
+                } else {
+                    pdfLoadingIndicator.classList.add('hidden');
+                    pdfErrorMessage.classList.remove('hidden');
+                    pdfErrorText.textContent = 'Erro ao carregar a biblioteca PDF.js.';
+                    showAlert('Erro ao carregar a biblioteca PDF.js.');
+                    return;
+                }
+            }
+
+            try {
+                const loadingTask = window.pdfjsLib.getDocument(url);
+                const pdf = await loadingTask.promise;
+                const page = await pdf.getPage(1);
+
+                const viewport = page.getViewport({ scale: 1.5 });
+                pdfCanvas.height = viewport.height;
+                pdfCanvas.width = viewport.width;
+
+                const renderContext = {
+                    canvasContext: pdfCanvas.getContext('2d'),
+                    viewport: viewport,
+                };
+                await page.render(renderContext).promise;
+                pdfCanvasContainer.classList.remove('hidden'); // Show canvas after rendering
+            } catch (error) {
+                console.error('Error rendering PDF:', error);
+                pdfErrorMessage.classList.remove('hidden');
+                pdfErrorText.textContent = 'Erro ao renderizar o PDF. O arquivo pode estar corrompido ou não é um PDF válido.';
+                showAlert('Erro ao renderizar o PDF. O arquivo pode estar corrompido ou não é um PDF válido.');
+            } finally {
+                pdfLoadingIndicator.classList.add('hidden');
+            }
+        }
+
+        // Function to save the current formatted reference to the non-persistent list
+        function handleSaveReference() {
+            if (formattedReferenceDisplay.innerHTML && formattedCitationDisplay.innerHTML) {
+                savedReferences.push({
+                    reference: formattedReferenceDisplay.innerHTML,
+                    citation: formattedCitationDisplay.innerHTML,
+                    data: { ...referenceData } // Save a copy of the raw data
+                });
+                renderSavedReferences();
+                showAlert("Referência salva na lista (não persistente)!");
+                // Clear form after saving
+                clearForm();
+            } else {
+                showAlert("Por favor, preencha os campos para gerar uma referência antes de salvar.");
+            }
+        }
+
+        // Function to render the saved references list
+        function renderSavedReferences() {
+            savedReferencesList.innerHTML = ''; // Clear current list
+            if (savedReferences.length > 0) {
+                savedReferencesSection.classList.remove('hidden');
+                savedReferences.forEach((item, index) => {
+                    const listItem = document.createElement('li');
+                    listItem.innerHTML = `
+                        <p>${item.reference}</p>
+                        <p class="text-sm text-gray-700">Citação: ${item.citation}</p>
+                    `;
+                    savedReferencesList.appendChild(listItem);
+                });
+            } else {
+                savedReferencesSection.classList.add('hidden');
+            }
+        }
+
+        // Function to download saved references
+        function handleDownloadReferences() {
+            if (savedReferences.length === 0) {
+                showAlert("Não há referências salvas para baixar.");
+                return;
+            }
+
+            let content = "Referências Bibliográficas (ABNT NBR 6023:2018)\n\n";
+            savedReferences.forEach((item, index) => {
+                content += `${index + 1}. ${item.reference.replace(/<[^>]*>?/gm, '')}\n`; // Remove HTML tags
+                content += `   Citação: ${item.citation.replace(/<[^>]*>?/gm, '')}\n\n`;
+            });
+
+            const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'referencias_abnt.txt';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(link.href);
+        }
+
+        // Function to clear all saved references
+        function handleClearReferences() {
+            showConfirm("Tem certeza que deseja limpar todas as referências salvas? Esta ação é irreversível e os dados serão perdidos.", (confirmed) => {
+                if (confirmed) {
+                    savedReferences = [];
+                    renderSavedReferences();
+                    showAlert("Todas as referências foram limpas da lista.");
+                }
+            });
+        }
+
+        // Function to clear the form fields
+        function clearForm() {
+            referenceData = {
+                type: 'book',
+                author: '', title: '', subtitle: '', edition: '', place: '', publisher: '', year: '',
+                periodicalTitle: '', volume: '', number: '', pages: '', availableAt: '', accessDate: '',
+                institution: '', courseProgram: '', documentType: '', pagesOrVolumes: '',
+                videoDuration: '', platformProducer: '',
+                jurisdiction: '', legislationType: '', legislationNumber: '', legislationDate: '', ementa: '',
+                publicationVehicle: '', publicationLocation: '', publicationVolumeNumber: '', publicationPages: '', publicationDate: '',
+                bookAuthor: '', bookTitle: '', bookSubtitle: '', bookEdition: '', bookPlace: '', bookPublisher: '', bookYear: '', chapterPages: '', bookOrganizer: '',
+                imageType: '', imageDimensions: '', imageLocation: '',
+                cartographicType: '', scale: '', dimensions: '', cartographicNotes: '',
+                eventName: '', eventNumber: '', eventYear: '', eventPlace: '', eventTitle: '', eventPublisher: '', eventPublicationDate: '',
+                isbn: '', issn: '', doi: '' // Clear new fields
+            };
+            // Reset all input fields
+            const formInputs = document.querySelectorAll('#formatter-section .input-field, #formatter-section textarea');
+            formInputs.forEach(input => {
+                if (input.type === 'select-one') {
+                    input.value = 'book'; // Default for select
+                } else {
+                    input.value = '';
+                }
+            });
+            formatABNTReference(); // Clear formatted output
+            updateDynamicFields(); // Reset dynamic fields visibility
+        }
+
+
+        // Initial setup on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            // Set initial view
+            formatterSection.classList.remove('hidden');
+            pdfViewerSection.classList.add('hidden');
+            formatterTab.classList.add('btn-primary');
+            formatterTab.classList.remove('btn-secondary');
+            pdfViewerTab.classList.add('btn-secondary');
+            pdfViewerTab.classList.remove('btn-primary');
+
+            // Tab switching
+            formatterTab.addEventListener('click', () => {
+                currentView = 'formatter';
+                formatterSection.classList.remove('hidden');
+                pdfViewerSection.classList.add('hidden');
+                formatterTab.classList.add('btn-primary');
+                formatterTab.classList.remove('btn-secondary');
+                pdfViewerTab.classList.add('btn-secondary');
+                pdfViewerTab.classList.remove('btn-primary');
+            });
+
+            pdfViewerTab.addEventListener('click', () => {
+                currentView = 'pdf-viewer';
+                pdfViewerSection.classList.remove('hidden');
+                formatterSection.classList.add('hidden');
+                pdfViewerTab.classList.add('btn-primary');
+                pdfViewerTab.classList.remove('btn-secondary');
+                formatterTab.classList.add('btn-secondary');
+                formatterTab.classList.remove('btn-primary');
+            });
+
+            // Setup all event listeners for form inputs
+            setupEventListeners();
+
+            // Initial formatting and dynamic fields update
+            formatABNTReference();
+            updateDynamicFields();
+            renderSavedReferences(); // Render any previously saved (non-persistent) references
+
+            // Button event listeners
+            generateReferenceBtn.addEventListener('click', formatABNTReference);
+            saveReferenceBtn.addEventListener('click', handleSaveReference);
+            downloadReferencesBtn.addEventListener('click', handleDownloadReferences);
+            clearReferencesBtn.addEventListener('click', handleClearReferences);
+            pdfUploadInput.addEventListener('change', handlePdfFileChange);
+        });
+    </script>
+</body>
+</html>
