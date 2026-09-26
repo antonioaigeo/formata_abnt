@@ -4,17 +4,31 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Catálogo ABNT — referências, citações e biblioteca pessoal</title>
-  <meta name="description" content="Gerador de referências e citações ABNT (NBR 6023:2018 / NBR 10520:2023) com biblioteca pessoal na nuvem, ao estilo de um mini Zotero.">
+  <meta name="description" content="Gerador de referências e citações ABNT (NBR 6023:2018 / NBR 10520:2023) com biblioteca pessoal na nuvem, ao estilo de um mini Zotero. Projeto do Laboratório de Geoprocessamento (FCA) e do PPGG, UFGD.">
+  <meta name="theme-color" content="#A8402F">
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/favicon-180.png">
   <link rel="stylesheet" href="style.css">
   <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
 <body>
+  <a href="#conteudoPrincipal" class="skip-link">Pular para o conteúdo principal</a>
 
   <!-- ============ AUTH SCREEN ============ -->
   <div id="authScreen" class="app" hidden>
     <div class="auth-wrap card">
       <div class="brand" style="margin-bottom:20px;">
-        <div class="brand-mark">§</div>
+        <div class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 48 48" focusable="false">
+            <g transform="rotate(-8 22.5 24)">
+              <rect x="9" y="7" width="27" height="34" rx="4" fill="var(--accent-ink)"/>
+              <path d="M31 7 H36 V12 Z" fill="var(--accent-2)"/>
+              <rect x="14" y="19" width="17" height="3.2" rx="1.6" fill="var(--accent)"/>
+              <rect x="14" y="27" width="12" height="3.2" rx="1.6" fill="var(--accent-2)"/>
+            </g>
+          </svg>
+        </div>
         <div>
           <h1 style="font-size:22px;">Catálogo ABNT</h1>
           <p style="margin:2px 0 0;color:var(--ink-soft);font-size:13px;">Entre para salvar sua biblioteca na nuvem</p>
@@ -48,24 +62,33 @@
     <header class="topbar">
       <div class="topbar-row">
         <div class="brand">
-          <div class="brand-mark">§</div>
+          <div class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 48 48" focusable="false">
+              <g transform="rotate(-8 22.5 24)">
+                <rect x="9" y="7" width="27" height="34" rx="4" fill="var(--accent-ink)"/>
+                <path d="M31 7 H36 V12 Z" fill="var(--accent-2)"/>
+                <rect x="14" y="19" width="17" height="3.2" rx="1.6" fill="var(--accent)"/>
+                <rect x="14" y="27" width="12" height="3.2" rx="1.6" fill="var(--accent-2)"/>
+              </g>
+            </svg>
+          </div>
           <div>
             <h1>Catálogo ABNT</h1>
-            <p>Referências, citações e biblioteca pessoal — NBR 6023:2018 · NBR 10520:2023</p>
+            <p>Crie referências e citações no padrão ABNT e guarde tudo numa biblioteca pessoal — NBR 6023:2018 · NBR 10520:2023</p>
           </div>
         </div>
         <div class="account-box" id="accountBox"></div>
       </div>
-      <nav class="tabs" role="tablist">
-        <button class="tab active" data-tab="novo" type="button">Nova referência</button>
-        <button class="tab" data-tab="biblioteca" type="button">Biblioteca <span class="count" id="libCount">0</span></button>
-        <button class="tab" data-tab="citar" type="button">Citar no texto</button>
-        <button class="tab" data-tab="guia" type="button">Guia rápido</button>
+      <nav class="tabs" role="tablist" aria-label="Seções do Catálogo ABNT">
+        <button class="tab active" data-tab="novo" type="button" role="tab" aria-selected="true" id="tabBtn-novo" aria-controls="panel-novo">Nova referência</button>
+        <button class="tab" data-tab="biblioteca" type="button" role="tab" aria-selected="false" id="tabBtn-biblioteca" aria-controls="panel-biblioteca">Biblioteca <span class="count" id="libCount">0</span></button>
+        <button class="tab" data-tab="citar" type="button" role="tab" aria-selected="false" id="tabBtn-citar" aria-controls="panel-citar">Citar no texto</button>
+        <button class="tab" data-tab="guia" type="button" role="tab" aria-selected="false" id="tabBtn-guia" aria-controls="panel-guia">Guia rápido</button>
       </nav>
     </header>
 
-    <main>
-      <section id="panel-novo" class="panel active">
+    <main id="conteudoPrincipal">
+      <section id="panel-novo" class="panel active" role="tabpanel" aria-labelledby="tabBtn-novo">
         <div class="layout-2col">
           <form id="refForm" class="card form-card" onsubmit="return false;">
             <div class="field autofill-field">
@@ -74,7 +97,7 @@
                 <input type="text" id="autofillInput" placeholder="Ex: 10.1590/S1519-70772014000100002, 978-85-07-07757-2 ou https://…">
                 <button type="button" id="autofillBtn" class="btn primary">Buscar</button>
               </div>
-              <p id="autofillStatus" class="hint" hidden></p>
+              <p id="autofillStatus" class="hint" hidden role="status" aria-live="polite"></p>
             </div>
             <div class="field">
               <label for="type">Tipo de fonte</label>
@@ -105,7 +128,7 @@
         </div>
       </section>
 
-      <section id="panel-biblioteca" class="panel">
+      <section id="panel-biblioteca" class="panel" role="tabpanel" aria-labelledby="tabBtn-biblioteca">
         <div id="libGate" class="card gate" hidden>
           <h3>Entre para ver sua biblioteca</h3>
           <p>Sua biblioteca fica salva na nuvem, vinculada à sua conta, e sincroniza entre dispositivos.</p>
@@ -135,7 +158,7 @@
         </div>
       </section>
 
-      <section id="panel-citar" class="panel">
+      <section id="panel-citar" class="panel" role="tabpanel" aria-labelledby="tabBtn-citar">
         <div class="card citegen">
           <div class="grid2">
             <div class="field span2">
@@ -197,7 +220,7 @@
         </div>
       </section>
 
-      <section id="panel-guia" class="panel">
+      <section id="panel-guia" class="panel" role="tabpanel" aria-labelledby="tabBtn-guia">
         <div class="guide-grid">
           <div class="card guide-card">
             <h3>Citação direta (curta)</h3>
@@ -234,14 +257,25 @@
     </main>
 
     <footer>
-      Desenvolvido por AIGEO Mapas · Geógrafo, Prof. M.Sc Antonio Idêrlian Pereira de Sousa<br>
-      Currículo Lattes: <a href="http://lattes.cnpq.br/8679039748672255" target="_blank" rel="noopener">lattes.cnpq.br/8679039748672255</a>
-      · Instagram: <a href="https://www.instagram.com/aigeomapas/" target="_blank" rel="noopener">@aigeomapas</a>
-      <p class="disclaimer">Ferramenta de apoio ao estudo. Os textos aqui gerados seguem a leitura das normas ABNT NBR 6023:2018 e NBR 10520:2023, mas não substituem a consulta às normas originais nem a revisão da sua biblioteca/orientador(a).</p>
+      <div class="footer-credits">
+        <div class="footer-logos">
+          <img src="assets/logo-ppgg.png" alt="Universidade Federal da Grande Dourados (UFGD) — Programa de Pós-Graduação em Geografia (PPGG)" width="220" height="105" loading="lazy">
+        </div>
+        <div class="footer-text">
+          <p class="footer-author">Antonio Idêrlian Pereira de Sousa — Geógrafo, Prof. M.Sc.</p>
+          <p>Técnico do Laboratório de Geoprocessamento (FCA-UFGD) · Doutorando em Geografia (PPGG-UFGD) · Desenvolvido por AIGEO Mapas</p>
+          <p class="footer-links">
+            <a href="http://lattes.cnpq.br/8679039748672255" target="_blank" rel="noopener">Currículo Lattes</a>
+            <span aria-hidden="true">·</span>
+            <a href="https://www.instagram.com/aigeomapas/" target="_blank" rel="noopener">Instagram @aigeomapas</a>
+          </p>
+        </div>
+      </div>
+      <p class="disclaimer">Ferramenta de apoio ao estudo, de uso livre e gratuito. Os textos gerados seguem a leitura das normas ABNT NBR 6023:2018 e NBR 10520:2023, mas não substituem a consulta às normas originais nem a revisão da sua biblioteca ou orientador(a).</p>
     </footer>
   </div>
 
-  <div id="toast" hidden class="toast"></div>
+  <div id="toast" hidden class="toast" role="status" aria-live="polite"></div>
 
   <!-- defer em todos: o script do Supabase (no <head>) também é "defer", e
        scripts "defer" rodam na ordem em que aparecem no documento, depois

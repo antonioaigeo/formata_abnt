@@ -685,7 +685,11 @@
   var tabs = document.querySelectorAll('.tab');
   var panels = document.querySelectorAll('.panel');
   function switchTab(name){
-    tabs.forEach(function(t){ t.classList.toggle('active', t.dataset.tab === name); });
+    tabs.forEach(function(t){
+      var active = t.dataset.tab === name;
+      t.classList.toggle('active', active);
+      t.setAttribute('aria-selected', active ? 'true' : 'false');
+    });
     panels.forEach(function(p){ p.classList.toggle('active', p.id === 'panel-' + name); });
   }
   tabs.forEach(function(t){ t.addEventListener('click', function(){ switchTab(t.dataset.tab); }); });

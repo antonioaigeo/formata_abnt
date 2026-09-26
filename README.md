@@ -37,7 +37,30 @@ supabase-schema.sql — script para criar a tabela e as regras de acesso
 netlify.toml    — configuração de deploy do Netlify
 netlify/functions/fetch-url-meta.js — função que lê metadados de um link
                   qualquer (contorna o bloqueio de CORS de sites externos)
+assets/         — ícone do site (favicon), marca do Catálogo ABNT e a logo
+                  do PPGG/UFGD usada no rodapé
 ```
+
+## Identidade visual e acessibilidade
+
+- **Ícone próprio**: o app tem uma marca original (o cartão de referência
+  inclinado com o canto dobrado, em `assets/favicon.svg`) usada como
+  favicon e no topo da página, em vez do símbolo de parágrafo (§) da
+  versão anterior. Para trocar por outra logo no futuro, edite o SVG em
+  `assets/favicon.svg` e regenere os PNGs (`favicon-32.png`,
+  `favicon-180.png`) do mesmo jeito — ou substitua por outros arquivos com
+  os mesmos nomes.
+- **Créditos institucionais**: o rodapé agora traz a logo do PPGG/UFGD
+  (`assets/logo-ppgg.png`) junto com os créditos de autoria, função
+  (Técnico do Laboratório de Geoprocessamento — FCA-UFGD — e doutorando no
+  PPGG-UFGD) e os links de Lattes/Instagram.
+- **Acessibilidade**: foi adicionado um link de "Pular para o conteúdo
+  principal" (aparece ao navegar por Tab), contorno de foco visível em
+  todo elemento clicável (não só nos campos de formulário), papéis ARIA
+  nas abas (`role="tab"`/`"tabpanel"` com `aria-selected`) e nos avisos de
+  status (`aria-live="polite"` no toast e na mensagem do preenchimento
+  automático, para leitores de tela anunciarem sem precisar navegar até
+  lá), e um texto de introdução mais direto no topo da página.
 
 ## Configurando o Supabase (uns 10 minutos)
 
