@@ -114,6 +114,13 @@ input:focus, select:focus, textarea:focus{ outline:2px solid var(--focus); outli
 @media (max-width:560px){ .grid2{ grid-template-columns:1fr; } }
 .grid2 .span2{ grid-column: 1 / -1; }
 
+.autofill-field{ padding-bottom:16px; margin-bottom:16px; border-bottom:1px dashed var(--line); }
+.autofill-row{ display:flex; gap:8px; }
+.autofill-row input{ flex:1; }
+.autofill-row .btn{ flex:none; }
+#autofillStatus.is-error{ color:#b3413a; }
+#autofillStatus.is-ok{ color: var(--accent-2); }
+
 .checkbox-row{ display:flex; align-items:center; gap:8px; font-size:13.5px; color: var(--ink-soft); margin:6px 0 16px; }
 .checkbox-inline{ display:flex; gap:16px; margin-top:6px; font-size:13px; color: var(--ink-soft); }
 .checkbox-inline label{ display:flex; align-items:center; gap:6px; }

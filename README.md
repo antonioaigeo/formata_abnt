@@ -28,11 +28,15 @@ index.html      — a página (formulário, biblioteca, gerador de citações)
 style.css       — todo o visual
 engine.js       — só a lógica de formatação ABNT (sem DOM, sem rede) —
                   autores, referências por tipo de fonte, citações
-app.js          — liga a página ao engine.js e ao Supabase (login,
-                  salvar/editar/excluir referências, exportar)
+metadata.js     — busca de metadados por DOI/ISBN/link (CrossRef, Open
+                  Library, Google Books e a função do Netlify abaixo)
+app.js          — liga a página ao engine.js, ao metadata.js e ao Supabase
+                  (login, salvar/editar/excluir referências, exportar)
 config.js       — suas chaves do Supabase (não são segredas, ver abaixo)
 supabase-schema.sql — script para criar a tabela e as regras de acesso
 netlify.toml    — configuração de deploy do Netlify
+netlify/functions/fetch-url-meta.js — função que lê metadados de um link
+                  qualquer (contorna o bloqueio de CORS de sites externos)
 ```
 
 ## Configurando o Supabase (uns 10 minutos)
@@ -68,6 +72,32 @@ Como é um site 100% estático, não tem build:
 4. Deploy. Pronto — o link do Netlify já serve o site com login
    funcionando (contanto que `config.js` esteja preenchido).
 
+## Preenchimento automático (DOI, ISBN ou link)
+
+Na aba "Nova referência" tem um campo no topo do formulário: cole um DOI,
+um ISBN ou o link de uma página e clique em "Buscar". O app identifica
+sozinho o que você colou e preenche o formulário:
+
+- **DOI** → busca na [CrossRef](https://www.crossref.org/) (funciona em
+  qualquer lugar, inclusive testando localmente — é uma API pública, sem
+  chave). Detecta se é um artigo ou um capítulo de livro.
+- **ISBN** → busca na [Open Library](https://openlibrary.org/) e, se não
+  achar, tenta o [Google Books](https://books.google.com/) (também sem
+  chave, funciona em qualquer lugar).
+- **Link (URL)** → lê o `<title>` e as tags `og:title`/`author`/data de
+  publicação da página. Isso **só funciona no site publicado no Netlify**
+  (ou rodando `netlify dev` localmente), porque depende da função incluída
+  em `netlify/functions/fetch-url-meta.js` — a maioria dos sites bloqueia
+  esse tipo de leitura quando feita direto do navegador da pessoa (CORS), e
+  essa função existe justamente para contornar isso, rodando no servidor
+  do Netlify em vez do navegador. Abrindo o `index.html` direto (sem
+  publicar), a busca por DOI e ISBN continua funcionando normalmente — só
+  a busca por link mostra um aviso explicando que precisa do Netlify.
+
+Depois de preenchido, revise os campos — nem toda base tem 100% dos dados
+(um ISBN sem editora cadastrada, por exemplo), e a lógica de nomes de
+autor da ABNT continua sendo aplicada em cima do que a busca trouxe.
+
 ## O que mudou em relação à versão anterior (só localStorage)
 
 - **Login com e-mail e senha**, com cadastro próprio (Supabase Auth) —
@@ -85,12 +115,15 @@ Como é um site 100% estático, não tem build:
 
 ## Limitações honestas
 
-- Isso não é uma cópia 1:1 do Zotero: não importa metadados
-  automaticamente de DOIs/URLs, não tem extensão de navegador para
-  capturar páginas, e não gera notas de rodapé num editor de texto. Ele
-  cobre o que a maioria das pessoas realmente usa o Zotero para no dia a
-  dia: guardar as referências, formatá-las certo e gerar a citação na hora
-  de escrever.
+- Isso não é uma cópia 1:1 do Zotero: não tem extensão de navegador para
+  capturar a página que você está lendo com um clique, e não gera notas de
+  rodapé num editor de texto. Já importa metadados automaticamente por
+  DOI/ISBN/link (ver seção acima) — é o que mais se aproxima do "clicar e
+  já vem tudo preenchido" do Zotero, sem precisar instalar nada. A extensão
+  de navegador propriamente dita seria um projeto à parte (um componente
+  separado, instalado no Chrome/Firefox, com permissão para ler a aba
+  aberta) — se quiser seguir para isso depois, dá pra planejar como uma
+  próxima etapa.
 - Recuperação de senha usa o fluxo padrão do Supabase (e-mail); configure
   o remetente de e-mail do projeto se quiser algo com a sua marca (painel
   do Supabase → Authentication → Email Templates / SMTP).

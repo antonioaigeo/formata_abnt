@@ -303,6 +303,41 @@
     formData = {}; refEtAl.checked = false; renderDynamicFields();
   });
 
+  /* -------- preenchimento automático (DOI / ISBN / link) -------- */
+  var autofillInput = document.getElementById('autofillInput');
+  var autofillBtn = document.getElementById('autofillBtn');
+  var autofillStatus = document.getElementById('autofillStatus');
+
+  function setAutofillStatus(msg, kind){
+    autofillStatus.hidden = !msg;
+    autofillStatus.textContent = msg || '';
+    autofillStatus.classList.remove('is-error', 'is-ok');
+    if(kind) autofillStatus.classList.add(kind);
+  }
+
+  if(autofillBtn){
+    autofillBtn.addEventListener('click', async function(){
+      var raw = autofillInput.value.trim();
+      if(!raw){ setAutofillStatus('Cole um DOI, ISBN ou link antes de buscar.', 'is-error'); return; }
+      autofillBtn.disabled = true;
+      setAutofillStatus('Buscando…');
+      try{
+        var result = await window.Metadata.lookupByAnything(raw);
+        typeSelect.value = result.type;
+        formData = Object.assign({}, formData, result.data);
+        renderDynamicFields();
+        setAutofillStatus('Dados encontrados e preenchidos — confira e complete o que faltar.', 'is-ok');
+      }catch(err){
+        setAutofillStatus((err && err.message) || 'Não foi possível buscar esses dados.', 'is-error');
+      }finally{
+        autofillBtn.disabled = false;
+      }
+    });
+    autofillInput.addEventListener('keydown', function(e){
+      if(e.key === 'Enter'){ e.preventDefault(); autofillBtn.click(); }
+    });
+  }
+
   document.getElementById('saveRefBtn').addEventListener('click', async function(){
     var def = E.TYPES[typeSelect.value];
     var data = currentData();

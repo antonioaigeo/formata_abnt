@@ -68,6 +68,14 @@
       <section id="panel-novo" class="panel active">
         <div class="layout-2col">
           <form id="refForm" class="card form-card" onsubmit="return false;">
+            <div class="field autofill-field">
+              <label for="autofillInput">Preenchimento automático (DOI, ISBN ou link)</label>
+              <div class="autofill-row">
+                <input type="text" id="autofillInput" placeholder="Ex: 10.1590/S1519-70772014000100002, 978-85-07-07757-2 ou https://…">
+                <button type="button" id="autofillBtn" class="btn primary">Buscar</button>
+              </div>
+              <p id="autofillStatus" class="hint" hidden></p>
+            </div>
             <div class="field">
               <label for="type">Tipo de fonte</label>
               <select id="type"></select>
@@ -237,6 +245,7 @@
 
   <script src="config.js"></script>
   <script src="engine.js"></script>
+  <script src="metadata.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
