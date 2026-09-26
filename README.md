@@ -1,9 +1,12 @@
-# Catálogo ABNT
+# Refera
 
 Gerador de referências e citações no padrão ABNT (NBR 6023:2018 e NBR
 10520:2023), com biblioteca pessoal — a ideia é ser um "Zotero mais
 simples", com login individual e a biblioteca de cada pessoa salva na
 nuvem, sincronizada entre aparelhos.
+
+> Nome do projeto: **Refera** (antes chamado de "Catálogo ABNT" — se você
+> ainda vir esse nome em algum lugar, é a versão antiga).
 
 ## Por que Supabase?
 
@@ -37,7 +40,7 @@ supabase-schema.sql — script para criar a tabela e as regras de acesso
 netlify.toml    — configuração de deploy do Netlify
 netlify/functions/fetch-url-meta.js — função que lê metadados de um link
                   qualquer (contorna o bloqueio de CORS de sites externos)
-assets/         — ícone do site (favicon), marca do Catálogo ABNT e a logo
+assets/         — ícone do site (favicon), marca do Refera e a logo
                   do PPGG/UFGD usada no rodapé
 ```
 
@@ -94,6 +97,16 @@ Como é um site 100% estático, não tem build:
    (a raiz do repositório) — já está assim em `netlify.toml`.
 4. Deploy. Pronto — o link do Netlify já serve o site com login
    funcionando (contanto que `config.js` esteja preenchido).
+
+### Trocando o link (subdomínio) do site
+
+No painel do Netlify: **Site configuration → Site details → Change site
+name**. O nome escolhido vira o link `https://SEU-NOME.netlify.app`.
+
+Toda vez que esse link mudar, é preciso atualizar dois lugares no
+`index.html` para a prévia ao compartilhar continuar funcionando: as tags
+`og:url`, `og:image` e `twitter:image` no `<head>` (procure por
+`refera.netlify.app` e troque pelo novo endereço).
 
 ## Preenchimento automático (DOI, ISBN ou link)
 

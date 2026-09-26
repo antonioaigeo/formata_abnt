@@ -3,9 +3,28 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Catálogo ABNT — referências, citações e biblioteca pessoal</title>
-  <meta name="description" content="Gerador de referências e citações ABNT (NBR 6023:2018 / NBR 10520:2023) com biblioteca pessoal na nuvem, ao estilo de um mini Zotero. Projeto do Laboratório de Geoprocessamento (FCA) e do PPGG, UFGD.">
+  <title>Refera — referências, citações e biblioteca pessoal em ABNT</title>
+  <meta name="description" content="Refera: gerador de referências e citações no padrão ABNT (NBR 6023:2018 / NBR 10520:2023) com biblioteca pessoal na nuvem, ao estilo de um mini Zotero. Projeto do Laboratório de Geoprocessamento (FCA) e do PPGG, UFGD.">
   <meta name="theme-color" content="#A8402F">
+
+  <!-- Imagem e texto usados quando o link é compartilhado (WhatsApp, Instagram,
+       Twitter/X, Facebook, LinkedIn...). Precisa de URL completa (com https://)
+       para a maioria dos apps conseguir buscar a imagem. Se o endereço do site
+       mudar de novo, atualize as 4 URLs abaixo (og:image, og:url, twitter:image)
+       para o novo domínio. -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Refera">
+  <meta property="og:title" content="Refera — referências, citações e biblioteca pessoal em ABNT">
+  <meta property="og:description" content="Gere referências e citações no padrão ABNT (NBR 6023:2018 / NBR 10520:2023) e guarde tudo numa biblioteca pessoal, com login opcional na nuvem.">
+  <meta property="og:image" content="https://refera.netlify.app/assets/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:url" content="https://refera.netlify.app/">
+  <meta property="og:locale" content="pt_BR">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Refera — referências, citações e biblioteca pessoal em ABNT">
+  <meta name="twitter:description" content="Gere referências e citações no padrão ABNT e guarde tudo numa biblioteca pessoal, com login opcional na nuvem.">
+  <meta name="twitter:image" content="https://refera.netlify.app/assets/og-image.png">
   <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
   <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
   <link rel="apple-touch-icon" sizes="180x180" href="assets/favicon-180.png">
@@ -30,7 +49,7 @@
           </svg>
         </div>
         <div>
-          <h1 style="font-size:22px;">Catálogo ABNT</h1>
+          <h1 style="font-size:22px;">Refera</h1>
           <p style="margin:2px 0 0;color:var(--ink-soft);font-size:13px;">Entre para salvar sua biblioteca na nuvem</p>
         </div>
       </div>
@@ -73,13 +92,13 @@
             </svg>
           </div>
           <div>
-            <h1>Catálogo ABNT</h1>
+            <h1>Refera</h1>
             <p>Crie referências e citações no padrão ABNT e guarde tudo numa biblioteca pessoal — NBR 6023:2018 · NBR 10520:2023</p>
           </div>
         </div>
         <div class="account-box" id="accountBox"></div>
       </div>
-      <nav class="tabs" role="tablist" aria-label="Seções do Catálogo ABNT">
+      <nav class="tabs" role="tablist" aria-label="Seções do Refera">
         <button class="tab active" data-tab="novo" type="button" role="tab" aria-selected="true" id="tabBtn-novo" aria-controls="panel-novo">Nova referência</button>
         <button class="tab" data-tab="biblioteca" type="button" role="tab" aria-selected="false" id="tabBtn-biblioteca" aria-controls="panel-biblioteca">Biblioteca <span class="count" id="libCount">0</span></button>
         <button class="tab" data-tab="citar" type="button" role="tab" aria-selected="false" id="tabBtn-citar" aria-controls="panel-citar">Citar no texto</button>
