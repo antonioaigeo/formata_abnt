@@ -8,6 +8,6 @@
 // código do site (não é secreta) — quem protege os dados de cada pessoa é
 // a Row Level Security configurada em supabase-schema.sql.
 window.CATALOGO_CONFIG = {
-  SUPABASE_URL: "",
-  SUPABASE_ANON_KEY: ""
+  SUPABASE_URL: "https://nrdqrdpexskwgbzotkyt.supabase.co",
+  SUPABASE_ANON_KEY: "sb_publishable_ggcbwzjDoJrRSasY1jPjuQ_p0VwBMzV"
 };
