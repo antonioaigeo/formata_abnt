@@ -243,9 +243,14 @@
 
   <div id="toast" hidden class="toast"></div>
 
-  <script src="config.js"></script>
-  <script src="engine.js"></script>
-  <script src="metadata.js"></script>
-  <script src="app.js"></script>
+  <!-- defer em todos: o script do Supabase (no <head>) também é "defer", e
+       scripts "defer" rodam na ordem em que aparecem no documento, depois
+       que a página termina de ser lida. Sem "defer" aqui, esses scripts
+       rodavam antes do Supabase terminar de carregar, e o app achava que
+       o Supabase não estava disponível mesmo com o config.js preenchido. -->
+  <script defer src="config.js"></script>
+  <script defer src="engine.js"></script>
+  <script defer src="metadata.js"></script>
+  <script defer src="app.js"></script>
 </body>
 </html>
